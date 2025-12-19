@@ -14,19 +14,18 @@ public class Main {
                  System.out.println("2 - show task list");
                  System.out.println("3 - update task status");
                  System.out.println("4 - show in order of priority");
-                 System.out.println("5 - exit");
+                 System.out.println("5 - remove task");
+                 System.out.println("6 - exit");
                  System.out.print("type your choice: ");
                  option = enter.nextInt();
                  enter.nextLine();
 
                  switch (option){
-                     case 1 -> {
-                         task.addTask();
-                     }
+                     case 1 -> task.addTask();
 
-                     case 2 -> {
-                         task.showTask();
-                     }
+
+                     case 2 -> task.showTask();
+
 
                      case 3 -> {
                          System.out.print("type id to update status: ");
@@ -35,16 +34,18 @@ public class Main {
                          task.updateStatus(id);
                      }
 
-                     case 4 -> {
-                         task.priorityOrdem();
-                     }
+                     case 4 -> task.priorityOrdem();
 
                      case 5 -> {
-                         System.out.println("leaving...");
+                         System.out.print("type id to remove task: ");
+                         int id = enter.nextInt();
+
+                         task.removeTask(id);
                      }
-                     default -> {
-                         System.out.println("invalid number");
-                     }
+                     case 6 -> System.out.println("leaving...");
+
+                     default -> System.out.println("invalid number");
+
                  }
 
 
@@ -52,7 +53,7 @@ public class Main {
                  System.out.println("type a valid number");
                  enter.nextLine();
              }
-         }while (option != 5 );
+         }while (option != 6 );
          System.out.println("thanks so much, come back soon");
     }
 }
