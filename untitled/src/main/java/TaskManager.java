@@ -65,11 +65,23 @@ public class TaskManager {
     }
 
     public void updateStatus(int id){
+        if (taskList.isEmpty()){
+            System.out.println("no task in list");
+            return;
+        }
+
+        boolean found = false;
+
         for (Task t : taskList){
             if (t.getId() == id){
                 Status s = askForStatus();
                 t.setTaskDone(s);
+                found = true;
+                break;
             }
+        }
+        if (!found){
+            System.out.println("error: task doesn't exist");
         }
     }
 
@@ -80,7 +92,16 @@ public class TaskManager {
     }
 
     public void removeTask(int id){
-        taskList.removeIf(task -> task.getId() == id);
+        if (taskList.isEmpty()){
+            System.out.println("no task in list");
+            return;
+        }
+        boolean removed = taskList.removeIf(task -> task.getId() == id);
+        if(removed){
+            System.out.println("removed succesfully");
+        }else {
+            System.out.println("error: task no found");
+        }
     }
 
 

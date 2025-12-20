@@ -28,8 +28,10 @@ public class Main {
 
 
                      case 3 -> {
+
                          System.out.print("type id to update status: ");
                          int id = enter.nextInt();
+                         enter.nextLine();
 
                          task.updateStatus(id);
                      }
@@ -39,6 +41,7 @@ public class Main {
                      case 5 -> {
                          System.out.print("type id to remove task: ");
                          int id = enter.nextInt();
+                         enter.nextLine();
 
                          task.removeTask(id);
                      }
