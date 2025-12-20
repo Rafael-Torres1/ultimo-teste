@@ -104,6 +104,20 @@ public class TaskManager {
         }
     }
 
+    public void showByStatus(Status status){
+        for (Task t : taskList){
+            if (t.getTaskDone() == status){
+                System.out.println(t);
+            }
+        }
+    }
 
+    public void showByPriority(Priority priority){
+        for(Task t : taskList){
+            if(t.getPriority() == priority){
+                System.out.println(t);
+            }
+        }
+    }
 
 }

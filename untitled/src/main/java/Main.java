@@ -15,7 +15,9 @@ public class Main {
                  System.out.println("3 - update task status");
                  System.out.println("4 - show in order of priority");
                  System.out.println("5 - remove task");
-                 System.out.println("6 - exit");
+                 System.out.println("6 - show by status");
+                 System.out.println("7 - show by priority");
+                 System.out.println("8 - exit ");
                  System.out.print("type your choice: ");
                  option = enter.nextInt();
                  enter.nextLine();
@@ -45,7 +47,21 @@ public class Main {
 
                          task.removeTask(id);
                      }
-                     case 6 -> System.out.println("leaving...");
+
+                     case 6 -> {
+                         Status s = task.askForStatus();
+
+                         task.showByStatus(s);
+                     }
+
+                     case 7 -> {
+                         Priority p = task.askForPriority();
+
+                         task.showByPriority(p);
+                     }
+
+                     case 8 -> System.out.println("leaving...");
+
 
                      default -> System.out.println("invalid number");
 
@@ -56,7 +72,7 @@ public class Main {
                  System.out.println("type a valid number");
                  enter.nextLine();
              }
-         }while (option != 6 );
+         }while (option != 8 );
          System.out.println("thanks so much, come back soon");
     }
 }
