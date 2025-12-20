@@ -69,10 +69,10 @@ public class Main {
 
 
              }catch (InputMismatchException e){
-                 System.out.println("type a valid number");
+                 System.out.print("error: is a not number: ");
                  enter.nextLine();
              }
          }while (option != 8 );
-         System.out.println("thanks so much, come back soon");
+         System.out.println("thanks so much, come back soon");\
     }
 }

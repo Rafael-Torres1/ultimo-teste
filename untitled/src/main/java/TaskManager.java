@@ -105,19 +105,40 @@ public class TaskManager {
     }
 
     public void showByStatus(Status status){
+        if (taskList.isEmpty()){
+            System.out.println("no task in list");
+            return;
+        }
+
+        boolean found = false;
+
         for (Task t : taskList){
             if (t.getTaskDone() == status){
                 System.out.println(t);
+                found = true;
             }
+        }
+        if (!found){
+            System.out.println("error: task doesn't exist");
         }
     }
 
     public void showByPriority(Priority priority){
+        if (taskList.isEmpty()){
+            System.out.println("no task in list");
+            return;
+        }
+
+        boolean found = false;
+
         for(Task t : taskList){
             if(t.getPriority() == priority){
                 System.out.println(t);
+                found = true;
             }
         }
+        if (!found){
+            System.out.println("error: task doesn't exist with this status");
+        }
     }
-
 }
