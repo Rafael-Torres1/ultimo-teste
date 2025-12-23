@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -40,7 +41,7 @@ public class TaskManager {
     }
 
     public void addTask(){
-        idCounter ++;
+        idCounter++;
 
         System.out.print("type description: ");
         String description = enter.nextLine();
@@ -86,7 +87,7 @@ public class TaskManager {
     }
 
     public void priorityOrdem(){
-        System.out.println("----- ordered by priority");
+        System.out.println("----- ordered by priority -----");
         taskList.sort(Comparator.comparing(Task::getPriority));
         showTask();
     }
@@ -141,4 +142,43 @@ public class TaskManager {
             System.out.println("error: task doesn't exist with this status");
         }
     }
+
+    public void saveTask(){
+        try (PrintWriter writer = new PrintWriter(new FileWriter("tasks.txt"))){
+
+            for (Task t : taskList){
+                writer.println(t.toFileFormat());
+            }
+            System.out.println("save file");
+        }catch (IOException e){
+            System.out.println("error saving taks: "+ e.getMessage());
+        }
+    }
+
+    public void loadTask(){
+        try (BufferedReader reader = new BufferedReader(new FileReader("tasks.txt"))){
+            String line;
+
+            while ((line = reader.readLine()) != null){
+                String[] data = line.split(";");
+
+                Task task = new Task();
+
+                int idRecovered = Integer.parseInt(data[0]);
+                task.setId(idRecovered);
+
+                task.setDescription(data[1]);
+
+                task.setPriority(Priority.valueOf(data[2]));
+                task.setTaskDone(Status.valueOf(data[3]));
+
+                taskList.add(task);
+                this.idCounter = idRecovered;
+            }
+
+        }catch (IOException e){
+            System.out.println("no tasks found"+ e.getMessage());
+        }
+    }
+
 }

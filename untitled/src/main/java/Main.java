@@ -6,6 +6,7 @@ public class Main {
          int option = 0;
          TaskManager task = new TaskManager();
 
+         task.loadTask();
 
          do{
              try {
@@ -60,7 +61,10 @@ public class Main {
                          task.showByPriority(p);
                      }
 
-                     case 8 -> System.out.println("leaving...");
+                     case 8 -> {
+                         System.out.println("saved data and leaving...");
+                         task.saveTask();
+                     }
 
 
                      default -> System.out.println("invalid number");
@@ -73,6 +77,6 @@ public class Main {
                  enter.nextLine();
              }
          }while (option != 8 );
-         System.out.println("thanks so much, come back soon");\
+         System.out.println("thanks so much, come back soon");
     }
 }

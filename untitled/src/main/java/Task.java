@@ -41,4 +41,8 @@ public class Task {
     public String toString(){
         return "id: " +id+ " | description: " +description+ " | priority: " +priority+ " | status: " +taskDone;
     }
+
+    public String toFileFormat(){
+        return id+ ";"+ description+ ";"+ priority+ ";"+ taskDone;
+    }
 }
