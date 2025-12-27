@@ -2,7 +2,7 @@ public class Task {
     private int id;
     private String description;
     private Priority priority;
-    private Status taskDone;
+    private Status status;
 
 
     public void setId(int id) {
@@ -17,8 +17,8 @@ public class Task {
         this.priority = priority;
     }
 
-    public void setTaskDone(Status taskDone) {
-        this.taskDone = taskDone;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public int getId() {
@@ -33,16 +33,16 @@ public class Task {
         return priority;
     }
 
-    public Status getTaskDone() {
-        return taskDone;
+    public Status getStatus() {
+        return status;
     }
 
     @Override
     public String toString(){
-        return "id: " +id+ " | description: " +description+ " | priority: " +priority+ " | status: " +taskDone;
+        return "id: " +id+ " | description: " +description+ " | priority: " +priority+ " | status: " + status;
     }
 
     public String toFileFormat(){
-        return id+ ";"+ description+ ";"+ priority+ ";"+ taskDone;
+        return id+ ";"+ description+ ";"+ priority+ ";"+ status;
     }
 }
