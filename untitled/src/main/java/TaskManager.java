@@ -61,6 +61,7 @@ public class TaskManager {
         task.setId(idCounter);
 
         taskList.add(task);
+        saveTask();
     }
 
     public void showTask(){
@@ -82,6 +83,7 @@ public class TaskManager {
                 Status s = askForStatus();
                 t.setStatus(s);
                 found = true;
+                saveTask();
                 break;
             }
         }
@@ -104,6 +106,7 @@ public class TaskManager {
         boolean removed = taskList.removeIf(task -> task.getId() == id);
         if(removed){
             System.out.println("removed succesfully");
+            saveTask();
         }else {
             System.out.println("error: task no found");
         }
@@ -176,4 +179,18 @@ public class TaskManager {
             System.out.println("error: "+ e.getMessage());
         }
     }
+
+    public void completeTask(int id){
+        for (Task t : taskList){
+            if(t.getId() == id){
+                t.setStatus(Status.DONE);
+                System.out.println("task: " +id+ " completed");
+                saveTask();
+                return;
+            }
+        }
+        System.out.println("task " +id+ " not found");
+    }
+
+
 }

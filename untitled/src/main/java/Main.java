@@ -18,7 +18,8 @@ public class Main {
                  System.out.println("5 - remove task");
                  System.out.println("6 - show by status");
                  System.out.println("7 - show by priority");
-                 System.out.println("8 - exit ");
+                 System.out.println("8 - complete task");
+                 System.out.println("9 - exit ");
                  System.out.print("type your choice: ");
                  option = enter.nextInt();
                  enter.nextLine();
@@ -62,9 +63,16 @@ public class Main {
                      }
 
                      case 8 -> {
-                         System.out.println("saved data and leaving...");
-                         task.saveTask();
+                         System.out.println("----- TASK COMPLETED -----");
+                         System.out.print("type id task completed: ");
+                         int id = enter.nextInt();
+                         enter.nextLine();
+
+                         task.completeTask(id);
                      }
+
+                     case 9 -> System.out.println("saved data and leaving...");
+
 
 
                      default -> System.out.println("invalid number");
@@ -76,7 +84,7 @@ public class Main {
                  System.out.print("error: is a not number: ");
                  enter.nextLine();
              }
-         }while (option != 8 );
+         }while (option != 9);
          System.out.println("thanks so much, come back soon");
     }
 }
