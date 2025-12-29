@@ -2,11 +2,12 @@ import java.util.Scanner;
 import java.util.InputMismatchException;
 public class Main {
      public static void main(String[] args) {
+         DataBaseConfig.createTable();
          Scanner enter = new Scanner(System.in);
          int option = 0;
          TaskManager task = new TaskManager();
 
-         task.loadTask();
+
 
          do{
              try {

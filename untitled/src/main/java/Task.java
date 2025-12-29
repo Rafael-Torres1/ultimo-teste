@@ -42,7 +42,4 @@ public class Task {
         return "id: " +id+ " | description: " +description+ " | priority: " +priority+ " | status: " + status;
     }
 
-    public String toFileFormat(){
-        return id+ ";"+ description+ ";"+ priority+ ";"+ status;
-    }
 }

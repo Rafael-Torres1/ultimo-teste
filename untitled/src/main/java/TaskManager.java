@@ -1,20 +1,11 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.sql.*;
 import java.util.Scanner;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
 
 public class TaskManager {
-
-    List<Task> taskList = new ArrayList<>();
     Scanner enter = new Scanner(System.in);
-    int idCounter;
 
-    public Priority askForPriority(){
+    public Priority askForPriority() {
         System.out.println("1 - HIGH");
         System.out.println("2 - MID");
         System.out.println("3 - LOW");
@@ -22,14 +13,14 @@ public class TaskManager {
         int choosePriority = enter.nextInt();
         enter.nextLine();
 
-        return switch (choosePriority){
+        return switch (choosePriority) {
             case 1 -> Priority.HIGH;
             case 2 -> Priority.MID;
             default -> Priority.LOW;
         };
     }
 
-    public Status askForStatus(){
+    public Status askForStatus() {
         System.out.println("1 - to do");
         System.out.println("2 - in progress");
         System.out.println("3 - done");
@@ -37,15 +28,14 @@ public class TaskManager {
         int chooseStatus = enter.nextInt();
         enter.nextLine();
 
-        return switch (chooseStatus){
+        return switch (chooseStatus) {
             case 1 -> Status.TODO;
             case 2 -> Status.INPROGRESS;
             default -> Status.DONE;
         };
     }
 
-    public void addTask(){
-        idCounter++;
+    public void addTask() {
 
         System.out.print("type description: ");
         String description = enter.nextLine();
@@ -53,144 +43,194 @@ public class TaskManager {
         Priority p = askForPriority();
         Status s = askForStatus();
 
-        Task task = new Task();
+        String sql = "INSERT INTO tasks (description, priority, status) VALUES (?, ?, ?)";
 
-        task.setDescription(description);
-        task.setPriority(p);
-        task.setStatus(s);
-        task.setId(idCounter);
+        try (Connection conn = DataBaseConfig.getConnetction();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        taskList.add(task);
-        saveTask();
-    }
+            stmt.setString(1, description);
+            stmt.setString(2, p.name());
+            stmt.setString(3, s.name());
 
-    public void showTask(){
-        for(Task t : taskList){
-            System.out.println(t);
+            stmt.executeUpdate();
+            System.out.println("task saved in database");
+
+        } catch (SQLException e) {
+            System.out.println("error: " + e.getMessage());
         }
     }
 
-    public void updateStatus(int id){
-        if (taskList.isEmpty()){
-            System.out.println("no task in list");
-            return;
-        }
+    public void showTask() {
+        String sql = "SELECT id, description, priority, status FROM tasks";
 
+        try (Connection conn = DataBaseConfig.getConnetction();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            System.out.println("\n----- list of tasks -----");
+
+            while (rs.next()) {
+
+                int id = rs.getInt("id");
+                String desc = rs.getString("description");
+                String prio = rs.getString("priority");
+                String stats = rs.getString("status");
+
+                System.out.printf("ID: %d | [%s] | %s (%s)%n", id, stats, desc, prio);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("error: " + e.getMessage());
+        }
+    }
+
+    public void updateStatus(int id) {
+        Status s = askForStatus();
+        String sql = "UPDATE tasks SET status = ? WHERE id = ?";
+
+        try (Connection conn = DataBaseConfig.getConnetction();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, s.name());
+            stmt.setInt(2, id);
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("status update");
+            } else {
+                System.out.println("error: task not found");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("error:" + e.getMessage());
+        }
+    }
+
+    public void priorityOrdem() {
+        String sql = """
+                SELECT * FROM tasks
+                ORDER BY CASE priority
+                   WHEN 'HIGH' THEN 1
+                   WHEN 'MID' THEN 2
+                   WHEN 'LOW' THEN 3
+                END
+                """;
+
+        try (Connection conn = DataBaseConfig.getConnetction();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            System.out.println("\n ----- ordered by ordem -----");
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String desc = rs.getString("description");
+                String prio = rs.getString("priority");
+                String stats = rs.getString("status");
+
+                System.out.println("id: " +id+ " | description: " +desc+ " | priority: " +prio+ " | status: " + stats);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("error: " + e.getMessage());
+        }
+    }
+
+    public void removeTask(int id) {
+        String sql = "DELETE FROM tasks WHERE id = ?";
+
+        try (Connection conn = DataBaseConfig.getConnetction();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            int deleteRows = stmt.executeUpdate();
+
+            if (deleteRows > 0) {
+                System.out.println("task removed");
+            } else {
+                System.out.println("task not found ");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("error: " + e.getMessage());
+        }
+    }
+
+    public void showByStatus(Status status) {
+        String sql = "SELECT id, description, priority, status FROM tasks WHERE status = ?";
+
+        try (Connection conn = DataBaseConfig.getConnetction();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, status.name());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                System.out.println("\n ----- filtered by status: " + status + " -----");
+                printResultSet(rs);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("error: " + e.getMessage());
+        }
+    }
+
+    public void showByPriority(Priority priority) {
+        String sql = "SELECT id, description, priority, status FROM tasks WHERE priority = ?";
+
+        try (Connection conn = DataBaseConfig.getConnetction();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, priority.name());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                System.out.println("\n ----- filtered by priority" + priority + " -----");
+                printResultSet(rs);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("error: " + e.getMessage());
+        }
+    }
+
+    public void completeTask(int id) {
+        String sql = "UPDATE tasks SET status = ? WHERE id = ?";
+
+        try (Connection conn = DataBaseConfig.getConnetction();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, Status.DONE.name());
+            stmt.setInt(2, id);
+
+            if (stmt.executeUpdate() > 0) {
+                System.out.println("task " + id + " marked as completed");
+            } else {
+                System.out.println("task not found ");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("error:" + e.getMessage());
+        }
+    }
+
+    private void printResultSet(ResultSet rs) throws SQLException {
         boolean found = false;
 
-        for (Task t : taskList){
-            if (t.getId() == id){
-                Status s = askForStatus();
-                t.setStatus(s);
-                found = true;
-                saveTask();
-                break;
-            }
-        }
-        if (!found){
-            System.out.println("error: task doesn't exist");
-        }
-    }
+        while (rs.next()) {
+            found = true;
 
-    public void priorityOrdem(){
-        System.out.println("----- ordered by priority -----");
-        taskList.sort(Comparator.comparing(Task::getPriority));
-        showTask();
-    }
+            int id = rs.getInt("id");
+            String desc = rs.getString("description");
+            String prio = rs.getString("priority");
+            String stats = rs.getString("status");
 
-    public void removeTask(int id){
-        if (taskList.isEmpty()){
-            System.out.println("no task in list");
-            return;
+            System.out.printf("ID: %d | [%s] | %s (%s)%n", id, stats, desc, prio);
         }
-        boolean removed = taskList.removeIf(task -> task.getId() == id);
-        if(removed){
-            System.out.println("removed succesfully");
-            saveTask();
-        }else {
-            System.out.println("error: task no found");
+        if (!found) {
+            System.out.println("error: task not found");
         }
     }
-
-    public void showByStatus(Status status){
-        if (taskList.isEmpty()){
-            System.out.println("no task in list");
-            return;
-        }
-
-        boolean found = false;
-
-        for (Task t : taskList){
-            if (t.getStatus() == status){
-                System.out.println(t);
-                found = true;
-            }
-        }
-        if (!found){
-            System.out.println("error: task doesn't exist");
-        }
-    }
-
-    public void showByPriority(Priority priority){
-        if (taskList.isEmpty()){
-            System.out.println("no task in list");
-            return;
-        }
-
-        boolean found = false;
-
-        for(Task t : taskList){
-            if(t.getPriority() == priority){
-                System.out.println(t);
-                found = true;
-            }
-        }
-        if (!found){
-            System.out.println("error: task doesn't exist with this status");
-        }
-    }
-
-    public void saveTask(){
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-        try (FileWriter writer = new FileWriter("tasks.json")){
-            gson.toJson(taskList, writer);
-            System.out.println("saved in JSON");
-        }catch (IOException e){
-            System.out.println("error in saved: " +e.getMessage());
-        }
-    }
-
-    public void loadTask(){
-        File file = new File("tasks.json");
-        if(!file.exists()) return;
-
-        Gson gson = new Gson();
-        try (FileReader reader = new FileReader("tasks.json")){
-
-            Type listType = new TypeToken<ArrayList<Task>>(){}.getType();
-
-            taskList = gson.fromJson(reader, listType);
-
-            if (!taskList.isEmpty()){
-                idCounter = taskList.getLast().getId();
-            }
-        }catch (IOException e){
-            System.out.println("error: "+ e.getMessage());
-        }
-    }
-
-    public void completeTask(int id){
-        for (Task t : taskList){
-            if(t.getId() == id){
-                t.setStatus(Status.DONE);
-                System.out.println("task: " +id+ " completed");
-                saveTask();
-                return;
-            }
-        }
-        System.out.println("task " +id+ " not found");
-    }
-
-
 }
