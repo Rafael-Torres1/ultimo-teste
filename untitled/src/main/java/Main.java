@@ -7,8 +7,6 @@ public class Main {
          int option = 0;
          TaskManager task = new TaskManager();
 
-
-
          do{
              try {
                  System.out.println("----- TASK MENU -----");
@@ -26,7 +24,12 @@ public class Main {
                  enter.nextLine();
 
                  switch (option){
-                     case 1 -> task.addTask();
+                     case 1 -> {
+                         System.out.print("type description: ");
+                         String desc = enter.nextLine();
+
+                         task.addTask(desc);
+                     }
 
 
                      case 2 -> task.showTask();
