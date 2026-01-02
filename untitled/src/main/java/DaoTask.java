@@ -3,10 +3,6 @@ import java.util.List;
 import java.sql.*;
 
 public class DaoTask {
-    // classe que gerencia interações entre o banco de dados com o gerenciador de tarefas
-
-    List<Task> taskList = new ArrayList<>();
-
 
     public void addTask(String description, Priority priority, Status status) {
 
@@ -27,28 +23,27 @@ public class DaoTask {
         }
     }
 
-    public void listTask() {
-
+    public List<Task> TaskInList(){
+        List<Task> taskList = new ArrayList<>();
         String sql = "SELECT id, description, priority, status FROM tasks";
 
         try (Connection conn = DataBaseConfig.getConnetction();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             ResultSet rs = stmt.executeQuery(sql)){
 
-            System.out.println("\n ----- task list -----");
+            while (rs.next()){
+                Task task = new Task();
 
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String desc = rs.getString("description");
-                String prio = rs.getString("priority");
-                String stats = rs.getString("status");
-
-                System.out.printf("ID: %d | [%s] | %s (%s)%n", id, stats, desc, prio);
+                task.setId(rs.getInt("id"));
+                task.setDescription(rs.getString("description"));
+                task.setPriority(Priority.valueOf(rs.getString("priority")));
+                task.setStatus(Status.valueOf(rs.getString("status")));
+                taskList.add(task);
             }
-
-        } catch (SQLException e) {
-            System.out.println("error: " + e.getMessage());
+        }catch (SQLException e){
+            System.out.println("error: " +e.getMessage());
         }
+        return taskList;
     }
 
     public void updateStatus(int id, Status status) {
@@ -97,7 +92,7 @@ public class DaoTask {
     public void ordemPriority() {
         String sql = """
                 SELECT * FROM tasks
-                ORDEM BY CASE priority
+                ORDER BY CASE priority
                     WHEN 'HIGH' THEN 1
                     WHEN 'MID' THEN 2
                     WHEN 'LOW' THEN 3
@@ -122,26 +117,6 @@ public class DaoTask {
             System.out.println("error: " + e.getMessage());
         }
     }
-
-
-    public void showByStatus(Status status) {
-        String sql = "SELECT id, description, priority, status FROM tasks WHERE status = ?";
-
-        try (Connection conn = DataBaseConfig.getConnetction();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, status.name());
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                System.out.println("\n ----- filtered by status " + status + " -----");
-                printRS(rs);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("error: " + e.getMessage());
-        }
-    }
-
 
     public void showByPriority(Priority priority) {
         String sql = "SELECT id, description, priority, status FROM tasks WHERE priority = ?";
@@ -181,21 +156,7 @@ public class DaoTask {
     }
 
     public void completeTask(int id){
-        String sql = "UPDATE tasks SET status = ? WHERE id = ? ";
-
-        try (Connection conn = DataBaseConfig.getConnetction(); PreparedStatement stmt = conn.prepareStatement(sql)){
-
-            stmt.setString(1, Status.TODO.name());
-            stmt.setInt(2, id);
-
-            if (stmt.executeUpdate() > 0){
-                System.out.println("task:" +id+ " completed ");
-            }else {
-                System.out.println("error: task not found");
-            }
-
-        }catch (SQLException e ){
-            System.out.println("error: " +e.getMessage());
-        }
+        updateStatus(id, Status.DONE);
+        System.out.println("task: " +id+ " done");
     }
 }
